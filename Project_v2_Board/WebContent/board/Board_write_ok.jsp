@@ -4,7 +4,7 @@
 <%
 	//out.println("1111");
 
-	request.setCharacterEncoding("UTF-8"); //받아오는 값들을 한글로 인코딩합니다.
+	request.setCharacterEncoding("euc-kr"); //받아오는 값들을 한글로 인코딩
 	Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
 	String url = "jdbc:sqlserver://127.0.0.1:1433;DatabaseName=testdb";
 	String id = "hjh1";
@@ -15,17 +15,29 @@
 	String Pwd = request.getParameter("Pwd");//write.jsp에서 password에 입력한 데이터값
 	String txtTitle = request.getParameter("txtTitle"); //write.jsp에서 title에 입력한 데이터값
 	String txtCon = request.getParameter("txtCon"); //write.jsp에서 memo에 입력한 데이터값
+	int max = 0;
 	
 	try {	
 		Connection conn = DriverManager.getConnection(url,id,pass);
 		
-		String sql = "INSERT INTO board(USERNAME,PWD,TITLE,CONTENT) VALUES(?,?,?,?)";
+		Statement stmt = conn.createStatement();
+		String sql = "SELECT MAX(NUM) FROM board";
+		ResultSet rs = stmt.executeQuery(sql);
+		
+		if(rs.next()){
+			max=rs.getInt(1);
+		}
+		
+		sql = "INSERT INTO board(USERNAME,TITLE,CONTENT,READ_DATE,PWD,HIT, REF) VALUES(?,?,?,GETDATE(),?,0,?)";
 		PreparedStatement pstmt = conn.prepareStatement(sql);
 		
 		pstmt.setString(1, txtName);
-		pstmt.setString(2, Pwd);
-		pstmt.setString(3, txtTitle);
-		pstmt.setString(4, txtCon);
+		pstmt.setString(2, txtTitle);
+		pstmt.setString(3, txtCon);
+		pstmt.setString(4, Pwd);
+		pstmt.setInt(5, max+1);
+		
+		out.println(pstmt);
 		
 		pstmt.execute();
 		pstmt.close();

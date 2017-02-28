@@ -40,7 +40,7 @@
 	    	return;
 	   }
 	 
-	  	//form.submit();
+	  	form.submit();
   }
 </script>
 </head>
